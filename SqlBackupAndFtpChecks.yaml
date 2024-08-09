@@ -1,0 +1,223 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-08-09T08:10:26Z'
+  groups:
+    - uuid: de1143f089864e559c7816947bcdb5d5
+      name: "Templates - \t0_CST_TPL"
+  templates:
+    - uuid: c91f80f5fc1048a9af1bd1606d8e1144
+      template: '0_CST_TPL-Backup SqlBackupAndFtp-v12'
+      name: '0_CST_TPL-Backup SqlBackupAndFtp-v12'
+      description: |
+        Tested with SqlBackupAndFtp v12
+        
+        Install SQLBackupAndFTP (https://sqlbackupandftp.com/download)
+        The default positions are:
+        c:\zabbix_agent\Data_Apps (For Data. Is hardcoded) 
+        c:\zabbix_agent\zabbix_sender.exe
+        c:\zabbix_agent\Data_Apps\zabbix_agentd.win.conf
+        c:\zabbix_agent\SqlBackupAndFtpChecks.exe
+        c:\zabbix_agent\Dll\SQLite3.dll (https://www.sqlite.org/download.html)
+        SQLite.dll.au3 for compilation (https://www.autoitscript.com/autoit3/pkgmgr/sqlite/)
+        
+        At the first start the configuration file will be created:
+        c:\zabbix_agent\Data_Apps\SqlBackupAndFtpChecks.exe.conf
+        
+        You can change the position of zabbix_sender, zabbix_configuration, sqlite.dll
+      groups:
+        - name: "Templates - \t0_CST_TPL"
+      items:
+        - uuid: 6ebc90323fa64892b72d62ecd61f6b2f
+          name: '[SQLBackupAndFTP] Checks disabled'
+          type: TRAP
+          key: backup.db.sqlbackupandftp.disabled
+          delay: '0'
+          history: 60d
+          triggers:
+            - uuid: f9b66823d91149d0ae7e9c5f6b9bf803
+              expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=1'
+              name: '[SQLBackupAndFTP] Check Disabled'
+              priority: INFO
+        - uuid: 450666f2c6684be8ba1e7b7da5a41289
+          name: '[SQLBackupAndFTP] Jobs Count'
+          type: TRAP
+          key: backup.db.sqlbackupandftp.jobs.count
+          delay: '0'
+          history: 60d
+          value_type: FLOAT
+        - uuid: 62547675c05248389cebdba44109fc56
+          name: '[SQLBackupAndFTP] Jobs Not Scheduled'
+          type: TRAP
+          key: backup.db.sqlbackupandftp.jobs.notscheduled
+          delay: '0'
+          history: 60d
+          trends: '0'
+          value_type: TEXT
+        - uuid: 9c09690f6fef4588b32a6e145de6813a
+          name: '[SQLBackupAndFTP] Collect Data'
+          key: 'system.run[C:\zabbix_agent\SqlBackupAndFtpChecks.exe,nowait]'
+          delay: '0;1h/1-7,07:00-08:30;1h/1-7,12:30-14:00'
+          history: 60d
+          trends: '0'
+          value_type: TEXT
+          request_method: POST
+      discovery_rules:
+        - uuid: 94e22112351d4d0dba313e801536bc0c
+          name: '[SQLBackupAndFTP] Discovery Jobs'
+          type: TRAP
+          key: backup.db.sqlbackupandftp.discovery
+          delay: '0'
+          item_prototypes:
+            - uuid: aad8e1141aac494f8b312f1dec46c3d9
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Backup Status (Prev)'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.BackupStatusPrev[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+            - uuid: 514f833b0ee54e1d97ed6315f72d64d8
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Backup Status'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.BackupStatus[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+            - uuid: 8e5db7ee685a4d8dabe89375b5d4958e
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Backup Type'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.BackupType[{#SBAFJOB}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+            - uuid: 857c3a08d75447439b41ad35c8d864ce
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Is Scheduled'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.IsScheduled[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+            - uuid: a54c71ee08c9490fb9a4d1d9a7e75b92
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Is Success (Prev)'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.IsSuccessPrev[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+            - uuid: b80d1595e6944656bcc0a103d4935157
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Is Success'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.IsSuccess[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+            - uuid: c377084141cf439285a20db1d8cb2734
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] LastRun DaysDiff'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+              trigger_prototypes:
+                - uuid: 4704453cee2646369a3f5f0b4dbdcb99
+                  expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}])=1'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup overdue ({ITEM.LASTVALUE}g)'
+                  priority: WARNING
+                - uuid: 32b22349fc014c86a97ce274cf682913
+                  expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}])=2'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup overdue ({ITEM.LASTVALUE}g)'
+                  priority: AVERAGE
+                - uuid: 9f9f22f4d8ad419d8648909981e2dd42
+                  expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}])=3'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup overdue ({ITEM.LASTVALUE}g)'
+                  priority: HIGH
+                - uuid: 08b8c6fb1a0a40aa8c5667466c4ad9f9
+                  expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}])>3'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup overdue ({ITEM.LASTVALUE}g)'
+                  priority: DISASTER
+                - uuid: 55268c0fa36047748bb36dc644a6f2eb
+                  expression: 'nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA01})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA02})=0'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - LastRun DayDiff - Not updated'
+                  priority: WARNING
+                - uuid: d3722b7e02ed450383b63af2240bd7bf
+                  expression: 'nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA02})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA03})=0'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - LastRun DayDiff - Not updated'
+                  priority: AVERAGE
+                - uuid: 851d2c122ae649329b5d99feeab4e2db
+                  expression: 'nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA03})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA04})=0'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - LastRun DayDiff - Not updated'
+                  priority: HIGH
+                - uuid: 066db4cfe2eb46339cc74b80e5194e52
+                  expression: 'nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.LastRun.DaysDiff[{#SBAFJOB}],{$SBAF_NODATA04})=1'
+                  name: '[SQLBackupAndFTP] {#SBAFJOB} - LastRun DayDiff - Not updated'
+                  priority: DISASTER
+            - uuid: 93c662b6706e4600bca7ecaf0af7cf21
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] LastRunAt'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.LastRunAt[{#SBAFJOB}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+            - uuid: 617ce22973934873abbe4770a9485df1
+              name: '[SQLBackupAndFTP] [{#SBAFJOB}] Size'
+              type: TRAP
+              key: 'backup.db.sqlbackupandftp.Size[{#SBAFJOB}]'
+              delay: '0'
+              value_type: FLOAT
+              units: b
+          trigger_prototypes:
+            - uuid: fe5d9b697f7a49e2a2da01ae5e79ba9f
+              expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.BackupStatus[{#SBAFJOB}])<>1 and last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.BackupStatusPrev[{#SBAFJOB}])<>1'
+              name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup Status Anomaly (Last and Prev)'
+              priority: HIGH
+            - uuid: 8b4812b0325e48b996680bbde795d544
+              expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.BackupStatus[{#SBAFJOB}])<>1 and last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.BackupStatusPrev[{#SBAFJOB}])=1'
+              name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup Status Anomaly (Only Last)'
+              priority: WARNING
+            - uuid: af4b506ed3d243a4890720f35b51ce9d
+              expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.IsSuccess[{#SBAFJOB}])<>1 and last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.IsSuccessPrev[{#SBAFJOB}])<>1'
+              name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup unsuccessful (Last and Prev)'
+              priority: DISASTER
+            - uuid: 15a3d773386e490ab53b239f0a718456
+              expression: 'last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.IsSuccess[{#SBAFJOB}])<>1 and last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.IsSuccessPrev[{#SBAFJOB}])=1'
+              name: '[SQLBackupAndFTP] {#SBAFJOB} - Backup unsuccessful (Only Last)'
+              priority: WARNING
+      macros:
+        - macro: '{$SBAF_NODATA01}'
+          value: 1d
+        - macro: '{$SBAF_NODATA02}'
+          value: 2d
+        - macro: '{$SBAF_NODATA03}'
+          value: 3d
+        - macro: '{$SBAF_NODATA04}'
+          value: 4d
+  triggers:
+    - uuid: 8b2fe69c326b439f8e20454b04968426
+      expression: |
+        nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA01})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA02})=0 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] JobsCount - Not updated'
+      priority: WARNING
+    - uuid: ec36d3dfa6c64a48bb080f7eb4dd8802
+      expression: |
+        nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA02})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA03})=0 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] JobsCount - Not updated'
+      priority: AVERAGE
+    - uuid: ad09782d88ae448fa2569fec2a88993f
+      expression: |
+        nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA03})=1 and nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA04})=0 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] JobsCount - Not updated'
+      priority: HIGH
+    - uuid: 8429cc4fff6d44dcb82e4d47d911270a
+      expression: |
+        nodata(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count,{$SBAF_NODATA04})=1 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] JobsCount - Not updated'
+      priority: DISASTER
+    - uuid: 3b8c71370f5c4a96be3a644cb29386fa
+      expression: |
+        find(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.notscheduled,,"regexp","^OK$")=0 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] Jobs Not Scheduled Found'
+      priority: INFO
+    - uuid: 5ced34e10e35465ca08dbd65ef58a944
+      expression: |
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.jobs.count)=0 and
+        last(/0_CST_TPL-Backup SqlBackupAndFtp-v12/backup.db.sqlbackupandftp.disabled)=0
+      name: '[SQLBackupAndFTP] No jobs found'
+      priority: DISASTER
