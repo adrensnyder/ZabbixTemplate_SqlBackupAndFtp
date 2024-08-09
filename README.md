@@ -2,7 +2,7 @@
 Zabbix Template created to monitor SqlBackupAndFtp. Tested on v12 version
 
 ## Versions
-It's created and tester for v12 version.
+It's created and tested for v12 version.
 
 ## Paths and Configuration
 - Change the path of the executable in the item `[SQLBackupAndFTP] Collect Data` if needed.
